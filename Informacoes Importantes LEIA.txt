@@ -1,0 +1,14 @@
+Para não dar erros
+
+Acessar cada pasta, e nelas tem outras pastas.
+
+Pega a pasta interna e joga no seu projeto no AS
+
+Presta a atenção só na XML e AndroidManifest, que são diferentes.
+
+E quando terminar de programar, coloca a pasta no GIT,
+
+-- NUNCA O PROJETO TODO --
+
+Obrigado
+
