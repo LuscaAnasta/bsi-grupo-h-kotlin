@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="src/LogoVitaLog.png" type="image/x-icon">
+    <title>Protótipo - App de Nutrição</title>
+    
+    <!-- Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Biblioteca de Gráficos (Chart.js) para a tela de relatórios -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Biblioteca de Ícones (Phosphor Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        /* Estilos para simular a aparência de um celular */
+        body {
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        #app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 850px;
+            background-color: #ffffff;
+            border-radius: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .screen {
+            display: none; /* Todas as telas começam escondidas */
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            animation: fadeIn 0.5s;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Estilos para o gráfico de progresso (donut) */
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        /* Esconder a barra de rolagem */
+        .screen::-webkit-scrollbar {
+            display: none;
+        }
+        .screen {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <main id="main-content" class="flex-grow overflow-y-auto">
+            <!-- TELA 1: BEM-VINDO -->
+            <div id="welcome-screen" class="screen active p-8 text-center justify-between">
+                <div>
+                    <i class="ph-bold ph-heart text-5xl text-emerald-500 mx-auto"></i>
+                    <p class="text-gray-500 mt-2">Seu bem-estar em dados.</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <img src="src/LogoVitaLog.png" alt="Ilustração de bem-estar" class="mx-auto rounded-lg">
+                </div>
+                <div>
+                    <button onclick="showScreen('register-screen')" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                        Criar Conta
+                    </button>
+                    <button onclick="showScreen('login-screen')" class="w-full mt-3 text-emerald-500 font-bold py-3 px-4 rounded-xl hover:bg-emerald-50 transition-colors">
+                        Já tenho uma conta
+                    </button>
+                </div>
+            </div>
+
+            <!-- TELA 2: CADASTRO -->
+            <div id="register-screen" class="screen">
+                <div class="flex items-center mb-8">
+                    <i onclick="showScreen('welcome-screen')" class="ph ph-arrow-left text-2xl cursor-pointer"></i>
+                    <h1 class="text-2xl font-bold text-gray-800 mx-auto pr-6">Crie sua Conta</h1>
+                </div>
+                <div class="space-y-4">
+                    <input type="text" placeholder="Nome" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="email" placeholder="E-mail" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="password" placeholder="Senha" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="flex items-center my-6">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="px-4 text-gray-500 text-sm">OU</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+                <div class="space-y-3">
+                     <button class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors">
+                        <i class="ph-bold ph-google-logo text-xl"></i> Continuar com Google
+                    </button>
+                     <button class="w-full flex items-center justify-center gap-3 bg-black text-white font-semibold py-3 px-4 rounded-xl hover:bg-gray-800 transition-colors">
+                        <i class="ph-bold ph-apple-logo text-xl"></i> Continuar com Apple
+                    </button>
+                </div>
+                <div class="mt-auto">
+                     <button onclick="showScreen('onboarding-screen')" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                        Continuar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- TELA 3: CONFIGURAÇÃO INICIAL (ONBOARDING) -->
+            <div id="onboarding-screen" class="screen">
+                <!-- Passo 1 -->
+                <div id="onboarding-step-1" class="onboarding-step">
+                    <p class="text-sm text-gray-500 text-center">Passo 1 de 3</p>
+                    <h1 class="text-2xl font-bold text-gray-800 text-center my-6">Qual é o seu principal objetivo?</h1>
+                    <div class="space-y-4">
+                        <button class="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Perder Peso</button>
+                        <button class="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Manter Peso</button>
+                        <button class="w-full text-left p-4 border-2 border-emerald-500 bg-emerald-50 rounded-xl">Ganhar Massa Muscular</button>
+                    </div>
+                    <button onclick="nextOnboardingStep(2)" class="w-full mt-auto bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                        Continuar
+                    </button>
+                </div>
+                <!-- Passo 2 -->
+                <div id="onboarding-step-2" class="onboarding-step" style="display: none;">
+                    <p class="text-sm text-gray-500 text-center">Passo 2 de 3</p>
+                    <h1 class="text-2xl font-bold text-gray-800 text-center my-6">Conte-nos sobre você</h1>
+                     <div class="space-y-4">
+                        <input type="text" placeholder="Gênero" class="w-full px-4 py-3 bg-gray-100 rounded-lg">
+                        <input type="text" placeholder="Data de Nascimento (DD/MM/AAAA)" class="w-full px-4 py-3 bg-gray-100 rounded-lg">
+                        <input type="number" placeholder="Altura (cm)" class="w-full px-4 py-3 bg-gray-100 rounded-lg">
+                        <input type="number" placeholder="Peso Atual (kg)" class="w-full px-4 py-3 bg-gray-100 rounded-lg">
+                    </div>
+                    <button onclick="nextOnboardingStep(3)" class="w-full mt-auto bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                        Continuar
+                    </button>
+                </div>
+                <!-- Passo 3 -->
+                <div id="onboarding-step-3" class="onboarding-step" style="display: none;">
+                    <p class="text-sm text-gray-500 text-center">Passo 3 de 3</p>
+                    <h1 class="text-2xl font-bold text-gray-800 text-center my-6">Seu nível de atividade</h1>
+                    <div class="space-y-3">
+                        <button class="w-full text-left p-3 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Sedentário</button>
+                        <button class="w-full text-left p-3 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Leve</button>
+                        <button class="w-full text-left p-3 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Moderado</button>
+                         <button class="w-full text-left p-3 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Ativo</button>
+                         <button class="w-full text-left p-3 border-2 border-gray-200 rounded-xl hover:border-emerald-500 focus:border-emerald-500 focus:bg-emerald-50">Muito Ativo</button>
+                    </div>
+                    <button onclick="showScreen('dashboard-screen', true)" class="w-full mt-auto bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                        Finalizar e Começar!
+                    </button>
+                </div>
+            </div>
+
+            <!-- TELA 4: LOGIN -->
+            <div id="login-screen" class="screen">
+                 <div class="flex items-center mb-8">
+                    <i onclick="showScreen('welcome-screen')" class="ph ph-arrow-left text-2xl cursor-pointer"></i>
+                    <h1 class="text-2xl font-bold text-gray-800 mx-auto pr-6">Entrar</h1>
+                </div>
+                 <div class="space-y-4">
+                    <input type="email" placeholder="E-mail" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="password" placeholder="Senha" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <a href="#" class="text-sm text-emerald-500 hover:underline text-right block mt-3">Esqueci minha senha</a>
+                <div class="mt-auto">
+                     <button onclick="showScreen('dashboard-screen', true)" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                        Entrar
+                    </button>
+                </div>
+            </div>
+
+            <!-- TELA 5: DASHBOARD -->
+            <div id="dashboard-screen" class="screen !p-0">
+                <div class="p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Olá, Usuário!</p>
+                            <h1 class="text-2xl font-bold text-gray-800">Resumo de Hoje</h1>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-600">
+                            <i class="ph ph-caret-left text-xl"></i>
+                            <span>Hoje</span>
+                            <i class="ph ph-caret-right text-xl"></i>
+                        </div>
+                    </div>
+
+                    <div class="relative w-48 h-48 mx-auto my-6">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <!-- Background circle -->
+                            <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                            <!-- Progress circle -->
+                            <circle id="calorie-progress" class="progress-ring__circle text-emerald-500" stroke-width="10" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                        </svg>
+                        <div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
+                            <span class="text-3xl font-bold text-gray-800">1258</span>
+                            <span class="text-gray-500">de 2100 kcal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <p class="text-sm text-gray-500">Proteínas</p>
+                            <p class="font-bold text-gray-800">80/120g</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Carbs</p>
+                            <p class="font-bold text-gray-800">150/200g</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Gorduras</p>
+                            <p class="font-bold text-gray-800">40/60g</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 flex-grow p-6 rounded-t-3xl overflow-y-auto">
+                    <h2 class="font-bold text-lg mb-4">Refeições</h2>
+                    <div class="space-y-4">
+                        <!-- Card de Refeição -->
+                        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
+                            <div>
+                                <h3 class="font-bold">Café da Manhã</h3>
+                                <p class="text-sm text-gray-500">350 kcal</p>
+                            </div>
+                            <button onclick="showScreen('food-search-screen', true)" class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-light">+</button>
+                        </div>
+                        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
+                            <div>
+                                <h3 class="font-bold">Almoço</h3>
+                                <p class="text-sm text-gray-500">650 kcal</p>
+                            </div>
+                            <button onclick="showScreen('food-search-screen', true)" class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-light">+</button>
+                        </div>
+                         <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
+                            <div>
+                                <h3 class="font-bold">Jantar</h3>
+                                <p class="text-sm text-gray-500">Ainda não registrado</p>
+                            </div>
+                            <button onclick="showScreen('food-search-screen', true)" class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-light">+</button>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="showScreen('food-search-screen', true)" class="absolute bottom-24 right-6 w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-lg">
+                    <i class="ph ph-plus"></i>
+                </button>
+            </div>
+            
+             <!-- TELA 6: REGISTRO DE ALIMENTO -->
+            <div id="food-search-screen" class="screen">
+                <div class="flex items-center mb-6">
+                     <i onclick="showScreen('dashboard-screen', true)" class="ph ph-arrow-left text-2xl cursor-pointer"></i>
+                    <h1 class="text-2xl font-bold text-gray-800 mx-auto pr-6">Adicionar Alimento</h1>
+                </div>
+                <div class="relative">
+                    <input type="text" placeholder="Busque um alimento..." class="w-full px-4 py-3 pl-10 bg-gray-100 rounded-lg">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                 <div class="flex justify-around my-4 border-b">
+                    <button class="py-2 border-b-2 border-emerald-500 text-emerald-500 font-semibold">Pesquisar</button>
+                    <button class="py-2 text-gray-500 font-semibold">Recentes</button>
+                    <button class="py-2 text-gray-500 font-semibold">Refeições</button>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-white p-3 rounded-lg flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold">Maçã</p>
+                            <p class="text-sm text-gray-500">1 unidade média - 95 kcal</p>
+                        </div>
+                        <button class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full">+</button>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold">Frango Grelhado</p>
+                            <p class="text-sm text-gray-500">100g - 165 kcal</p>
+                        </div>
+                        <button class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TELA 7: RELATÓRIOS -->
+            <div id="reports-screen" class="screen">
+                <div class="flex items-center mb-6">
+                    <i onclick="showScreen('dashboard-screen', true)" class="ph ph-arrow-left text-2xl cursor-pointer"></i>
+                    <h1 class="text-2xl font-bold text-gray-800 mx-auto pr-6">Relatórios</h1>
+                </div>
+                <div class="flex justify-center bg-gray-100 p-1 rounded-lg mb-6">
+                    <button class="flex-1 py-2 rounded-md bg-white text-emerald-500 shadow text-sm font-semibold">Semanal</button>
+                    <button class="flex-1 py-2 text-gray-500 text-sm font-semibold">Mensal</button>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg mb-2">Calorias</h2>
+                    <canvas id="caloriesChart"></canvas>
+                </div>
+                 <div class="mt-8">
+                    <h2 class="font-bold text-lg mb-2">Macronutrientes</h2>
+                    <canvas id="macrosChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- TELA DE METAS -->
+            <div id="goals-screen" class="screen">
+                <div class="flex items-center mb-6">
+                    <i onclick="showScreen('dashboard-screen', true)" class="ph ph-arrow-left text-2xl cursor-pointer"></i>
+                    <h1 class="text-2xl font-bold text-gray-800 mx-auto pr-6">Minhas Metas</h1>
+                </div>
+                <p class="text-gray-500 mb-6 text-center">Escolha um objetivo ou personalize suas metas diárias.</p>
+                
+                <div class="space-y-4" id="goal-options">
+                    <button class="goal-card w-full text-left p-4 border-2 border-emerald-500 bg-emerald-50 rounded-xl flex items-center gap-4">
+                        <i class="ph-bold ph-trend-down text-3xl text-emerald-600"></i>
+                        <div>
+                           <h3 class="font-bold text-lg">Perder Peso</h3>
+                           <p class="text-sm text-gray-600">Déficit calórico para redução de gordura.</p>
+                        </div>
+                    </button>
+                    <button class="goal-card w-full text-left p-4 border-2 border-gray-200 rounded-xl flex items-center gap-4">
+                        <i class="ph-bold ph-arrows-clockwise text-3xl text-blue-600"></i>
+                         <div>
+                           <h3 class="font-bold text-lg">Manter Peso</h3>
+                           <p class="text-sm text-gray-600">Equilíbrio para manter sua forma atual.</p>
+                        </div>
+                    </button>
+                    <button class="goal-card w-full text-left p-4 border-2 border-gray-200 rounded-xl flex items-center gap-4">
+                       <i class="ph-bold ph-trend-up text-3xl text-orange-600"></i>
+                        <div>
+                           <h3 class="font-bold text-lg">Ganhar Massa</h3>
+                           <p class="text-sm text-gray-600">Superávit calórico para hipertrofia.</p>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="my-6">
+                    <h3 class="font-bold text-gray-600 text-sm uppercase tracking-wider">Meta Customizável</h3>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                        <label class="font-semibold">Calorias (kcal)</label>
+                        <input type="number" value="2100" class="bg-transparent w-24 text-right font-bold text-gray-700 focus:outline-none">
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                        <label class="font-semibold">Proteínas (g)</label>
+                        <input type="number" value="120" class="bg-transparent w-24 text-right font-bold text-gray-700 focus:outline-none">
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                        <label class="font-semibold">Carboidratos (g)</label>
+                        <input type="number" value="200" class="bg-transparent w-24 text-right font-bold text-gray-700 focus:outline-none">
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                        <label class="font-semibold">Gorduras (g)</label>
+                        <input type="number" value="60" class="bg-transparent w-24 text-right font-bold text-gray-700 focus:outline-none">
+                    </div>
+                </div>
+                 <button class="w-full mt-8 bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-emerald-600 transition-colors">
+                    Salvar Metas
+                </button>
+            </div>
+
+            <!-- TELA 8: PERFIL -->
+            <div id="profile-screen" class="screen">
+                 <div class="flex items-center mb-6">
+                    <i onclick="showScreen('dashboard-screen', true)" class="ph ph-arrow-left text-2xl cursor-pointer"></i>
+                    <h1 class="text-2xl font-bold text-gray-800 mx-auto pr-6">Perfil</h1>
+                </div>
+                <div class="text-center mb-8">
+                    <img src="https://placehold.co/100x100/e0e0e0/333?text=User" class="rounded-full mx-auto">
+                    <p class="font-bold mt-2">Usuário de Teste</p>
+                </div>
+                 <div class="space-y-2">
+                    <a href="#" class="flex justify-between items-center bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors">
+                        <span><i class="ph ph-user-circle mr-2"></i> Meus Dados</span>
+                        <i class="ph ph-caret-right"></i>
+                    </a>
+                    <a href="#" class="flex justify-between items-center bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors">
+                        <span><i class="ph ph-bell mr-2"></i> Notificações</span>
+                        <i class="ph ph-caret-right"></i>
+                    </a>
+                    <a href="#" class="flex justify-between items-center bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors">
+                        <span><i class="ph ph-palette mr-2"></i> Aparência</span>
+                        <i class="ph ph-caret-right"></i>
+                    </a>
+                 </div>
+                 <button class="w-full mt-8 border border-red-500 text-red-500 font-bold py-3 px-4 rounded-xl hover:bg-red-50 transition-colors">
+                    Sair da Conta
+                </button>
+            </div>
+        </main>
+        
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+        <nav id="bottom-nav" class="w-full bg-white border-t border-gray-200 p-2 flex justify-around" style="display: none;">
+            <button onclick="showScreen('dashboard-screen', true)" class="flex flex-col items-center text-emerald-500 p-2 rounded-lg w-1/4">
+                <i class="ph-bold ph-house text-2xl"></i>
+                <span class="text-xs">Início</span>
+            </button>
+            <button onclick="showScreen('reports-screen', true)" class="flex flex-col items-center text-gray-400 p-2 rounded-lg w-1/4">
+                <i class="ph ph-chart-bar text-2xl"></i>
+                <span class="text-xs">Relatórios</span>
+            </button>
+            <button onclick="showScreen('goals-screen', true)" class="flex flex-col items-center text-gray-400 p-2 rounded-lg w-1/4">
+                 <i class="ph ph-flag text-2xl"></i>
+                <span class="text-xs">Metas</span>
+            </button>
+            <button onclick="showScreen('profile-screen', true)" class="flex flex-col items-center text-gray-400 p-2 rounded-lg w-1/4">
+                <i class="ph ph-user text-2xl"></i>
+                <span class="text-xs">Perfil</span>
+            </button>
+        </nav>
+    </div>
+
+<script>
+    const screens = document.querySelectorAll('.screen');
+    const bottomNav = document.getElementById('bottom-nav');
+    const mainContent = document.getElementById('main-content');
+
+    let caloriesChartInstance;
+    let macrosChartInstance;
+
+    // Função para mostrar a tela correta e esconder as outras
+    function showScreen(screenId, showNav = false) {
+        screens.forEach(screen => {
+            if (screen.id === screenId) {
+                screen.classList.add('active');
+            } else {
+                screen.classList.remove('active');
+            }
+        });
+        
+        // Mostra ou esconde a barra de navegação inferior
+        if (showNav) {
+            bottomNav.style.display = 'flex';
+            mainContent.style.height = 'calc(100% - 68px)'; // Ajusta altura para nav
+        } else {
+            bottomNav.style.display = 'none';
+            mainContent.style.height = '100%';
+        }
+        
+        // Atualiza o estado ativo dos botões de navegação
+        const navButtons = bottomNav.querySelectorAll('button');
+        navButtons.forEach(button => {
+            if (button.getAttribute('onclick').includes(screenId)) {
+                button.classList.remove('text-gray-400');
+                button.classList.add('text-emerald-500');
+            } else {
+                button.classList.remove('text-emerald-500');
+                button.classList.add('text-gray-400');
+            }
+        });
+
+        // Se a tela de relatórios for exibida, renderiza os gráficos
+        if (screenId === 'reports-screen') {
+            renderCharts();
+        }
+        
+        // Se a tela do dashboard for exibida, anima o progresso
+        if (screenId === 'dashboard-screen') {
+            animateCalorieProgress(1258, 2100);
+        }
+    }
+
+    // Lógica para os passos do Onboarding
+    function nextOnboardingStep(step) {
+        document.querySelectorAll('.onboarding-step').forEach(s => s.style.display = 'none');
+        const nextStep = document.getElementById(`onboarding-step-${step}`);
+        nextStep.style.display = 'flex';
+        nextStep.classList.add('flex-col', 'flex-grow');
+    }
+    
+    // Animação para o círculo de progresso de calorias
+    function animateCalorieProgress(consumed, goal) {
+        const circle = document.getElementById('calorie-progress');
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        const offset = circumference - (consumed / goal) * circumference;
+
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        // Força um reflow para garantir que a transição funcione
+        circle.getBoundingClientRect(); 
+        circle.style.strokeDashoffset = offset;
+    }
+
+    // Função para renderizar os gráficos na tela de relatórios
+    function renderCharts() {
+        const caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
+        const macrosCtx = document.getElementById('macrosChart').getContext('2d');
+
+        // Destrói gráficos antigos se existirem, para evitar bugs
+        if (caloriesChartInstance) {
+            caloriesChartInstance.destroy();
+        }
+        if (macrosChartInstance) {
+            macrosChartInstance.destroy();
+        }
+        
+        caloriesChartInstance = new Chart(caloriesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Calorias Consumidas',
+                    data: [1900, 2200, 2050, 2300, 1800, 2500, 2100],
+                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        macrosChartInstance = new Chart(macrosCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Proteínas', 'Carboidratos', 'Gorduras'],
+                datasets: [{
+                    label: 'Distribuição de Macros',
+                    data: [30, 50, 20],
+                    backgroundColor: [
+                        'rgba(52, 211, 153, 1)', // emerald-400
+                        'rgba(251, 191, 36, 1)', // amber-400
+                        'rgba(251, 146, 60, 1)'  // orange-400
+                    ],
+                    hoverOffset: 4
+                }]
+            }
+        });
+    }
+
+    // Inicializa a primeira tela e adiciona interatividade
+    document.addEventListener('DOMContentLoaded', () => {
+        showScreen('welcome-screen');
+
+        // Adiciona interatividade aos cards de meta
+        const goalCards = document.querySelectorAll('.goal-card');
+        goalCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove a seleção de todos os cards
+                goalCards.forEach(c => {
+                    c.classList.remove('border-emerald-500', 'bg-emerald-50');
+                    c.classList.add('border-gray-200');
+                });
+                // Adiciona a seleção ao card clicado
+                card.classList.add('border-emerald-500', 'bg-emerald-50');
+                card.classList.remove('border-gray-200');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
+
