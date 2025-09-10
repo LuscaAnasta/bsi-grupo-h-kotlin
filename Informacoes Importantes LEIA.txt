@@ -30,4 +30,8 @@ build.grandle.kts (APP)
 Em DEPENDENCIAS incluir os novos pacotes
 
 DRAWABLE
+<<<<<<< HEAD
 C:\Users\User\AndroidStudioProjects\MyApplication\app\src\main\res\drawable
+=======
+C:\Users\User\AndroidStudioProjects\MyApplication\app\src\main\res\drawable
+>>>>>>> 4ed01b22de094b81d159e5a58e2de4c37e004577
