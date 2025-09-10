@@ -12,3 +12,22 @@ E quando terminar de programar, coloca a pasta no GIT,
 
 Obrigado
 
+== INFORMAÇÕES DADAS PELO PROFESSOR == 
+
+
+Arquivos para passar do repositorio atualizado para a estrutura de pastas do seu projeto no Android Studio
+
+KT
+C:\Users\User\AndroidStudioProjects\MyApplication\app\src\main\java\com\example\myapplication
+
+XML
+C:\Users\User\AndroidStudioProjects\MyApplication\app\src\main\res\layout
+
+AndroidManifest.xml
+Incluir as mudancas
+
+build.grandle.kts (APP)
+Em DEPENDENCIAS incluir os novos pacotes
+
+DRAWABLE
+C:\Users\User\AndroidStudioProjects\MyApplication\app\src\main\res\drawable
