@@ -1,0 +1,2 @@
+Colocar essa pasta "meu_projeto_api" dentro da pasta "htdocs" no seu xampp
+
