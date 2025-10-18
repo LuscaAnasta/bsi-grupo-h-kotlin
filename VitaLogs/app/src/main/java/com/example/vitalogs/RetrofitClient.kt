@@ -16,5 +16,5 @@ object RetrofitClient {
     // !!! ATENÇÃO !!!
     // Coloque aqui o IP da sua máquina que está rodando o servidor PHP.
     // Lembre-se que o celular/emulador precisa estar na mesma rede.
-    private const val BASE_URL = "http://192.168.37.154/"
+    private const val BASE_URL = "http://10.135.246.12/"
 }
